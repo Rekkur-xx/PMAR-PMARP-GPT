@@ -1,0 +1,141 @@
+//@version=5
+//
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// @author  = The_Caretaker
+// © The_Caretaker
+//
+// Much respect to John A Bollinger the creator of Bollinger Bands® and Bollinger Band Width indicators.
+// 
+// Feel free to reuse or develop this script further, please drop me a note below if you find it useful.
+//
+
+indicator('Bollinger Band Width Percentile', 'BBWP', overlay=false, format=format.percent, precision=2, max_bars_back = 1000)
+
+///////////////////////////////////////////////////////////////////////////////
+// variable declarations
+
+var c_prcntSpctrm1 = array.new_color(na)
+if barstate.isfirst
+    array.push ( c_prcntSpctrm1, #0000FF )
+    array.push ( c_prcntSpctrm1, #000AFF ), array.push ( c_prcntSpctrm1, #0014FF ), array.push ( c_prcntSpctrm1, #001FFF ), array.push ( c_prcntSpctrm1, #0029FF ), array.push ( c_prcntSpctrm1, #0033FF ),
+    array.push ( c_prcntSpctrm1, #003DFF ), array.push ( c_prcntSpctrm1, #0047FF ), array.push ( c_prcntSpctrm1, #0052FF ), array.push ( c_prcntSpctrm1, #005CFF ), array.push ( c_prcntSpctrm1, #0066FF ),
+    array.push ( c_prcntSpctrm1, #0070FF ), array.push ( c_prcntSpctrm1, #007AFF ), array.push ( c_prcntSpctrm1, #0085FF ), array.push ( c_prcntSpctrm1, #008FFF ), array.push ( c_prcntSpctrm1, #0099FF ),
+    array.push ( c_prcntSpctrm1, #00A3FF ), array.push ( c_prcntSpctrm1, #00ADFF ), array.push ( c_prcntSpctrm1, #00B8FF ), array.push ( c_prcntSpctrm1, #00C2FF ), array.push ( c_prcntSpctrm1, #00CCFF ),
+    array.push ( c_prcntSpctrm1, #00D6FF ), array.push ( c_prcntSpctrm1, #00E0FF ), array.push ( c_prcntSpctrm1, #00EBFF ), array.push ( c_prcntSpctrm1, #00F5FF ), array.push ( c_prcntSpctrm1, #00FFFF ),
+    array.push ( c_prcntSpctrm1, #00FFF5 ), array.push ( c_prcntSpctrm1, #00FFEB ), array.push ( c_prcntSpctrm1, #00FFE0 ), array.push ( c_prcntSpctrm1, #00FFD6 ), array.push ( c_prcntSpctrm1, #00FFCC ),
+    array.push ( c_prcntSpctrm1, #00FFC2 ), array.push ( c_prcntSpctrm1, #00FFB8 ), array.push ( c_prcntSpctrm1, #00FFAD ), array.push ( c_prcntSpctrm1, #00FFA3 ), array.push ( c_prcntSpctrm1, #00FF99 ),
+    array.push ( c_prcntSpctrm1, #00FF8F ), array.push ( c_prcntSpctrm1, #00FF85 ), array.push ( c_prcntSpctrm1, #00FF7A ), array.push ( c_prcntSpctrm1, #00FF70 ), array.push ( c_prcntSpctrm1, #00FF66 ),
+    array.push ( c_prcntSpctrm1, #00FF5C ), array.push ( c_prcntSpctrm1, #00FF52 ), array.push ( c_prcntSpctrm1, #00FF47 ), array.push ( c_prcntSpctrm1, #00FF3D ), array.push ( c_prcntSpctrm1, #00FF33 ),
+    array.push ( c_prcntSpctrm1, #00FF29 ), array.push ( c_prcntSpctrm1, #00FF1F ), array.push ( c_prcntSpctrm1, #00FF14 ), array.push ( c_prcntSpctrm1, #00FF0A ), array.push ( c_prcntSpctrm1, #00FF00 ),
+    array.push ( c_prcntSpctrm1, #0AFF00 ), array.push ( c_prcntSpctrm1, #14FF00 ), array.push ( c_prcntSpctrm1, #1FFF00 ), array.push ( c_prcntSpctrm1, #29FF00 ), array.push ( c_prcntSpctrm1, #33FF00 ),
+    array.push ( c_prcntSpctrm1, #3DFF00 ), array.push ( c_prcntSpctrm1, #47FF00 ), array.push ( c_prcntSpctrm1, #52FF00 ), array.push ( c_prcntSpctrm1, #5CFF00 ), array.push ( c_prcntSpctrm1, #66FF00 ),
+    array.push ( c_prcntSpctrm1, #70FF00 ), array.push ( c_prcntSpctrm1, #7AFF00 ), array.push ( c_prcntSpctrm1, #85FF00 ), array.push ( c_prcntSpctrm1, #8FFF00 ), array.push ( c_prcntSpctrm1, #99FF00 ),
+    array.push ( c_prcntSpctrm1, #A3FF00 ), array.push ( c_prcntSpctrm1, #ADFF00 ), array.push ( c_prcntSpctrm1, #B8FF00 ), array.push ( c_prcntSpctrm1, #C2FF00 ), array.push ( c_prcntSpctrm1, #CCFF00 ),
+    array.push ( c_prcntSpctrm1, #D6FF00 ), array.push ( c_prcntSpctrm1, #E0FF00 ), array.push ( c_prcntSpctrm1, #EBFF00 ), array.push ( c_prcntSpctrm1, #F5FF00 ), array.push ( c_prcntSpctrm1, #FFFF00 ),
+    array.push ( c_prcntSpctrm1, #FFF500 ), array.push ( c_prcntSpctrm1, #FFEB00 ), array.push ( c_prcntSpctrm1, #FFE000 ), array.push ( c_prcntSpctrm1, #FFD600 ), array.push ( c_prcntSpctrm1, #FFCC00 ),
+    array.push ( c_prcntSpctrm1, #FFC200 ), array.push ( c_prcntSpctrm1, #FFB800 ), array.push ( c_prcntSpctrm1, #FFAD00 ), array.push ( c_prcntSpctrm1, #FFA300 ), array.push ( c_prcntSpctrm1, #FF9900 ),
+    array.push ( c_prcntSpctrm1, #FF8F00 ), array.push ( c_prcntSpctrm1, #FF8500 ), array.push ( c_prcntSpctrm1, #FF7A00 ), array.push ( c_prcntSpctrm1, #FF7000 ), array.push ( c_prcntSpctrm1, #FF6600 ),
+    array.push ( c_prcntSpctrm1, #FF5C00 ), array.push ( c_prcntSpctrm1, #FF5200 ), array.push ( c_prcntSpctrm1, #FF4700 ), array.push ( c_prcntSpctrm1, #FF3D00 ), array.push ( c_prcntSpctrm1, #FF3300 ),
+    array.push ( c_prcntSpctrm1, #FF2900 ), array.push ( c_prcntSpctrm1, #FF1F00 ), array.push ( c_prcntSpctrm1, #FF1400 ), array.push ( c_prcntSpctrm1, #FF0000 ), array.push ( c_prcntSpctrm1, #FF0000 )
+
+var c_prcntSpctrm2 = array.new_color(na)
+if barstate.isfirst
+    array.push ( c_prcntSpctrm2, #0000FF )
+    array.push ( c_prcntSpctrm2, #0200FC ), array.push ( c_prcntSpctrm2, #0500F9 ), array.push ( c_prcntSpctrm2, #0700F7 ), array.push ( c_prcntSpctrm2, #0A00F4 ), array.push ( c_prcntSpctrm2, #0C00F2 ),
+    array.push ( c_prcntSpctrm2, #0F00EF ), array.push ( c_prcntSpctrm2, #1100ED ), array.push ( c_prcntSpctrm2, #1400EA ), array.push ( c_prcntSpctrm2, #1600E8 ), array.push ( c_prcntSpctrm2, #1900E5 ),
+    array.push ( c_prcntSpctrm2, #1C00E2 ), array.push ( c_prcntSpctrm2, #1E00E0 ), array.push ( c_prcntSpctrm2, #2100DD ), array.push ( c_prcntSpctrm2, #2300DB ), array.push ( c_prcntSpctrm2, #2600D8 ),
+    array.push ( c_prcntSpctrm2, #2800D6 ), array.push ( c_prcntSpctrm2, #2B00D3 ), array.push ( c_prcntSpctrm2, #2D00D1 ), array.push ( c_prcntSpctrm2, #3000CE ), array.push ( c_prcntSpctrm2, #3300CC ),
+    array.push ( c_prcntSpctrm2, #3500C9 ), array.push ( c_prcntSpctrm2, #3800C6 ), array.push ( c_prcntSpctrm2, #3A00C4 ), array.push ( c_prcntSpctrm2, #3D00C1 ), array.push ( c_prcntSpctrm2, #3F00BF ),
+    array.push ( c_prcntSpctrm2, #4200BC ), array.push ( c_prcntSpctrm2, #4400BA ), array.push ( c_prcntSpctrm2, #4700B7 ), array.push ( c_prcntSpctrm2, #4900B5 ), array.push ( c_prcntSpctrm2, #4C00B2 ),
+    array.push ( c_prcntSpctrm2, #4F00AF ), array.push ( c_prcntSpctrm2, #5100AD ), array.push ( c_prcntSpctrm2, #5400AA ), array.push ( c_prcntSpctrm2, #5600A8 ), array.push ( c_prcntSpctrm2, #5900A5 ),
+    array.push ( c_prcntSpctrm2, #5B00A3 ), array.push ( c_prcntSpctrm2, #5E00A0 ), array.push ( c_prcntSpctrm2, #60009E ), array.push ( c_prcntSpctrm2, #63009B ), array.push ( c_prcntSpctrm2, #660099 ),
+    array.push ( c_prcntSpctrm2, #680096 ), array.push ( c_prcntSpctrm2, #6B0093 ), array.push ( c_prcntSpctrm2, #6D0091 ), array.push ( c_prcntSpctrm2, #70008E ), array.push ( c_prcntSpctrm2, #72008C ),
+    array.push ( c_prcntSpctrm2, #750089 ), array.push ( c_prcntSpctrm2, #770087 ), array.push ( c_prcntSpctrm2, #7A0084 ), array.push ( c_prcntSpctrm2, #7C0082 ), array.push ( c_prcntSpctrm2, #7F007F ),
+    array.push ( c_prcntSpctrm2, #82007C ), array.push ( c_prcntSpctrm2, #84007A ), array.push ( c_prcntSpctrm2, #870077 ), array.push ( c_prcntSpctrm2, #890075 ), array.push ( c_prcntSpctrm2, #8C0072 ),
+    array.push ( c_prcntSpctrm2, #8E0070 ), array.push ( c_prcntSpctrm2, #91006D ), array.push ( c_prcntSpctrm2, #93006B ), array.push ( c_prcntSpctrm2, #960068 ), array.push ( c_prcntSpctrm2, #990066 ),
+    array.push ( c_prcntSpctrm2, #9B0063 ), array.push ( c_prcntSpctrm2, #9E0060 ), array.push ( c_prcntSpctrm2, #A0005E ), array.push ( c_prcntSpctrm2, #A3005B ), array.push ( c_prcntSpctrm2, #A50059 ),
+    array.push ( c_prcntSpctrm2, #A80056 ), array.push ( c_prcntSpctrm2, #AA0054 ), array.push ( c_prcntSpctrm2, #AD0051 ), array.push ( c_prcntSpctrm2, #AF004F ), array.push ( c_prcntSpctrm2, #B2004C ),
+    array.push ( c_prcntSpctrm2, #B50049 ), array.push ( c_prcntSpctrm2, #B70047 ), array.push ( c_prcntSpctrm2, #BA0044 ), array.push ( c_prcntSpctrm2, #BC0042 ), array.push ( c_prcntSpctrm2, #BF003F ),
+    array.push ( c_prcntSpctrm2, #C1003D ), array.push ( c_prcntSpctrm2, #C4003A ), array.push ( c_prcntSpctrm2, #C60038 ), array.push ( c_prcntSpctrm2, #C90035 ), array.push ( c_prcntSpctrm2, #CC0033 ),
+    array.push ( c_prcntSpctrm2, #CE0030 ), array.push ( c_prcntSpctrm2, #D1002D ), array.push ( c_prcntSpctrm2, #D3002B ), array.push ( c_prcntSpctrm2, #D60028 ), array.push ( c_prcntSpctrm2, #D80026 ),
+    array.push ( c_prcntSpctrm2, #DB0023 ), array.push ( c_prcntSpctrm2, #DD0021 ), array.push ( c_prcntSpctrm2, #E0001E ), array.push ( c_prcntSpctrm2, #E2001C ), array.push ( c_prcntSpctrm2, #E50019 ),
+    array.push ( c_prcntSpctrm2, #E80016 ), array.push ( c_prcntSpctrm2, #EA0014 ), array.push ( c_prcntSpctrm2, #ED0011 ), array.push ( c_prcntSpctrm2, #EF000F ), array.push ( c_prcntSpctrm2, #F2000C ),
+    array.push ( c_prcntSpctrm2, #F4000A ), array.push ( c_prcntSpctrm2, #F70007 ), array.push ( c_prcntSpctrm2, #F90005 ), array.push ( c_prcntSpctrm2, #FC0002 ), array.push ( c_prcntSpctrm2, #FF0000 )
+
+var string STM = 'Spectrum'
+var string SLD = 'Solid'
+var string BGR = 'Blue Green Red'
+var string BR  = 'Blue Red'
+
+///////////////////////////////////////////////////////////////////////////////
+// inputs
+
+i_priceSrc      = input.source  ( close,    'Price Source',                                                                         group='BBWP Properties')
+i_basisType     = input.string  ( 'SMA',    'Basis Type',                       options=['SMA', 'EMA', 'VWMA'],                     group='BBWP Properties')
+i_bbwpLen       = input.int     ( 13,       'Length',                           minval=1,                                           group='BBWP Properties')
+i_bbwpLkbk      = input.int     ( 252,      'Lookback',                         minval=1,                                           group='BBWP Properties')
+
+i_c_bbwpTyped   = input.string  ( STM,      'Color Type',                       options=[STM, SLD],                     inline='1', group='BBWP Plot Settings')
+i_c_spctrmType  = input.string  ( BGR,      'Spectrum',                         options=[BR, BGR],                      inline='1', group='BBWP Plot Settings')
+i_c_bbwpsolid   = input.color   ( #FFFF00,  'Solid',                                                                    inline='1', group='BBWP Plot Settings')
+i_bbwpWidth     = input.int     ( 2,        'Line Width',                       minval=1, maxval=4,                     inline='2', group='BBWP Plot Settings')
+
+i_ma1On         = input.bool    ( true, '',                                                                             inline='1', group='Moving Average Settings')
+i_ma1Type       = input.string  ( 'SMA',    'MA 1 Type',                        options=['SMA', 'EMA', 'VWMA'],         inline='1', group='Moving Average Settings')
+i_c_ma1         = input.color   ( #FFFFFF,  '',                                                                         inline='1', group='Moving Average Settings')
+i_ma1Len        = input.int     ( 5,        'Length',                           minval=1,                               inline='1', group='Moving Average Settings')
+i_ma2On         = input.bool    ( false,    '',                                                                         inline='2', group='Moving Average Settings')
+i_ma2Type       = input.string  ( 'SMA',    'MA 2 Type',                        options=['SMA', 'EMA', 'VWMA'],         inline='2', group='Moving Average Settings')
+i_c_ma2         = input.color   ( #00FFFF,  '',                                                                         inline='2', group='Moving Average Settings')
+i_ma2Len        = input.int     ( 8,        'Length',                           minval=1,                               inline='2', group='Moving Average Settings')
+
+i_alrtsOn       = input.bool    ( true,     'Alerts On',                                                                            group='Visual Alerts')
+i_upperLevel    = input.int     ( 98,       'Extreme High',                     minval=1, inline='1',                               group='Visual Alerts')
+i_lowerLevel    = input.int     ( 2,        'Extreme Low',                      minval=1, inline='1',                               group='Visual Alerts')
+
+///////////////////////////////////////////////////////////////////////////////
+// function declarations
+
+f_maType ( _price, _len, _type ) =>
+    _type == 'SMA' ? ta.sma ( _price, _len ) : _type == 'EMA' ? ta.ema ( _price, _len ) : ta.vwma ( _price, _len )
+
+f_bbwp ( _price, _bbwLen, _bbwpLen, _type ) =>
+    float _basis = f_maType ( _price, _bbwLen, _type )
+    float _dev = ta.stdev ( _price, _bbwLen )
+    _bbw = ( _basis + _dev - ( _basis - _dev )) / _basis
+    _bbwSum = 0.0
+    _len = bar_index < _bbwpLen ? bar_index : _bbwpLen
+    for _i = 1 to _len by 1
+        _bbwSum += ( _bbw[_i] > _bbw ? 0 : 1 )
+        _bbwSum
+    _return = bar_index >= _bbwLen ? ( _bbwSum / _len) * 100 : na
+    _return
+
+f_clrSlct ( _percent, _select, _type, _solid, _array1, _array2 ) =>
+    _select == 'Solid' ? _solid : array.get ( _type == 'Blue Green Red' ? _array1 : _array2, math.round ( _percent ) )
+
+/////////////////////////////////////////////////////////////////////////////// 
+// calculations
+
+bbwp        = f_bbwp ( i_priceSrc, i_bbwpLen, i_bbwpLkbk, i_basisType )
+c_bbwp      = f_clrSlct ( bbwp, i_c_bbwpTyped, i_c_spctrmType, i_c_bbwpsolid, c_prcntSpctrm1, c_prcntSpctrm2 )
+bbwpMA1     = i_ma1On ? f_maType ( bbwp, i_ma1Len, i_ma1Type ) : na
+bbwpMA2     = i_ma2On ? f_maType ( bbwp, i_ma2Len, i_ma2Type ) : na
+hiAlrtBar   = i_alrtsOn and bbwp >= i_upperLevel ? bbwp : na
+loAlrtBar   = i_alrtsOn and bbwp <= i_lowerLevel ? bbwp : na
+
+/////////////////////////////////////////////////////////////////////////////// 
+// plots
+
+p_scaleHi   = hline ( 100,  'Scale High', #ff0000, hline.style_solid )
+p_midLine   = hline ( 50,   'Mid-Line', color.silver, hline.style_dashed )
+p_scaleLo   = hline ( 0,    'Scale Low', #0000ff, hline.style_solid )
+
+p_bbwp      = plot ( bbwp,      'BBWP',         c_bbwp, i_bbwpWidth, plot.style_line, editable=false )
+p_hiAlrt    = plot ( hiAlrtBar, 'Extreme Hi',   c_bbwp, 1, plot.style_columns, histbase=0, editable=false )
+p_loAlrt    = plot ( loAlrtBar, 'Extreme Lo',   c_bbwp, 1, plot.style_columns, histbase=100, editable=false )
+p_ma1       = plot ( bbwpMA1,   'MA 1',         i_c_ma1, 1, plot.style_line, 0 )
+p_ma2       = plot ( bbwpMA2,   'MA 2',         i_c_ma2, 1, plot.style_line, 0 )
+
+/////////////////////////////
+// end
